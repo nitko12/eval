@@ -1,0 +1,5 @@
+{
+    "code": "print(sum(list(map(int, input().split()))))",
+    "in": ["1 2", "5 1"],
+    "out": ["3", "6"]
+}
