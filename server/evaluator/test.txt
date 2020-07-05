@@ -1,5 +1,5 @@
 {
-    "code": "#include <iostream>\\nint main() {\\nint a,b;\\nstd::cin >> a >> b;\\nstd::cout << a + b << std::endl;\\n}\\n",
+    "code": "print(sum(list(map(int, input().split()))))",
     "in": ["1 2"],
     "out": ["3"]
 }

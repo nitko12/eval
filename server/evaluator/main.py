@@ -47,7 +47,6 @@ PROFILES = {
     "python": {
         "docker_image": "python",
         "user": "1000:1000",
-        "read_only": True,
         "network_disabled": True,
     },
 }
@@ -81,6 +80,9 @@ with epicbox.working_directory() as workdir:
                     "gcc_run", "./main", stdin=x, limits=limits, workdir=workdir,
                 )
 
+                if result["timeout"]:
+                    print("TLE")
+
                 if result["exit_code"] != 0 or result["stderr"] != b"":
                     print("RTE")
                     continue
@@ -88,16 +90,34 @@ with epicbox.working_directory() as workdir:
                 a = result["stdout"].strip().split(b"\n")
                 b = str.encode(y).strip().split(b"\n")
 
-                if result["timeout"]:
-                    print("TLE")
-                elif len(a) == len(b) and all(
+                if len(a) == len(b) and all(
                     [b" ".join(i.split()) == b" ".join(j.split()) for i, j in zip(a, b)]
                 ):
                     print("AC", result["duration"])
                 else:
                     print("WA")
 
-    elif args["lang"]:
-        files = [{"name": "main.py", "content": code}]
-        result = epicbox.run("python", "python3 main.py", files=files, limits=limits)
+    elif args.lang == "python":
+        files = [{"name": "main.py", "content": str.encode(code)}]
+        for x, y in zip(stdin["in"], stdin["out"]):
+            result = epicbox.run(
+                "python", "python3 main.py", stdin=x, limits=limits, files=files
+            )
+
+            if result["timeout"]:
+                print("TLE")
+                continue
+            if result["exit_code"] != 0 or result["stderr"] != b"":
+                print("RTE")
+                continue
+
+            a = result["stdout"].strip().split(b"\n")
+            b = str.encode(y).strip().split(b"\n")
+
+            if len(a) == len(b) and all(
+                [b" ".join(i.split()) == b" ".join(j.split()) for i, j in zip(a, b)]
+            ):
+                print("AC", result["duration"])
+            else:
+                print("WA")
 
