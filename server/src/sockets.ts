@@ -3,7 +3,7 @@ import Evaluator from "./evaluate";
 
 const evaluator = new Evaluator();
 
-export default (io: any) => {
+export default function Sockets(io: any) {
   io.sockets.on("connection", (socket: Socket, callBack: Function) => {
     socket.on("evaluate", (data: any) => {
       let task = {
@@ -30,4 +30,4 @@ export default (io: any) => {
       }
     });
   });
-};
+}

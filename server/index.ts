@@ -6,7 +6,9 @@ const server = http.createServer(app);
 
 const io = require("socket.io").listen(server);
 
-const sockets = require("./src/sockets")(io);
+import Sockets from "./src/sockets";
+
+const sockets = Sockets(io);
 
 app.set("socketio", io);
 app.use(express.static("../eval_frontend/build"));
