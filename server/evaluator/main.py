@@ -3,6 +3,7 @@ import argparse
 import sys
 import json
 from pprint import pprint
+from multiprocessing import Pool
 
 parser = argparse.ArgumentParser(description="Run isolated code.")
 
@@ -23,7 +24,6 @@ parser.add_argument(
     help="Time evaluator will wait before closing execution (seconds)",
     default=1.0,
     nargs="?",
-    choices=["c++", "python"],
 )
 
 parser.add_argument(
@@ -33,7 +33,6 @@ parser.add_argument(
     help="Memory given to a program executing",
     default=64,
     nargs="?",
-    choices=["c++", "python"],
 )
 
 PROFILES = {
@@ -59,6 +58,31 @@ def read_in():
     return json.load(sys.stdin)
 
 
+def run(obj):
+    container, path, stdin, expectedOut, limits, workdir, files, n = obj
+    result = epicbox.run(
+        container, path, stdin=stdin, limits=limits, workdir=workdir, files=files
+    )
+
+    if result["timeout"]:
+        print("Test " + n + ": TLE")
+        return
+
+    if result["exit_code"] != 0 or result["stderr"] != b"":
+        print("Test " + n + ": RTE")
+        return
+
+    a = result["stdout"].strip().split(b"\n")
+    b = str.encode(expectedOut).strip().split(b"\n")
+
+    if len(a) == len(b) and all(
+        [b" ".join(i.split()) == b" ".join(j.split()) for i, j in zip(a, b)]
+    ):
+        print("Test " + n + ": AC", result["duration"])
+    else:
+        print("Test " + n + ": WA")
+
+
 with epicbox.working_directory() as workdir:
     limits = {"cputime": int(args.cpu), "memory": int(args.mem)}
     stdin = read_in()
@@ -75,49 +99,23 @@ with epicbox.working_directory() as workdir:
         if compileResult["exit_code"] != 0 or compileResult["stderr"] != b"":
             print("CER")
         else:
-            for x, y in zip(stdin["in"], stdin["out"]):
-                result = epicbox.run(
-                    "gcc_run", "./main", stdin=x, limits=limits, workdir=workdir,
-                )
+            files = []
+            inOuts = [
+                ("gcc_run", "./main", x, y, limits, workdir, files, str(i))
+                for i, (x, y) in enumerate(zip(stdin["in"], stdin["out"]))
+            ]
 
-                if result["timeout"]:
-                    print("TLE")
-
-                if result["exit_code"] != 0 or result["stderr"] != b"":
-                    print("RTE")
-                    continue
-
-                a = result["stdout"].strip().split(b"\n")
-                b = str.encode(y).strip().split(b"\n")
-
-                if len(a) == len(b) and all(
-                    [b" ".join(i.split()) == b" ".join(j.split()) for i, j in zip(a, b)]
-                ):
-                    print("AC", result["duration"])
-                else:
-                    print("WA")
+            p = Pool(len(inOuts))
+            p.map(run, inOuts)
 
     elif args.lang == "python":
         files = [{"name": "main.py", "content": str.encode(code)}]
-        for x, y in zip(stdin["in"], stdin["out"]):
-            result = epicbox.run(
-                "python", "python3 main.py", stdin=x, limits=limits, files=files
-            )
 
-            if result["timeout"]:
-                print("TLE")
-                continue
-            if result["exit_code"] != 0 or result["stderr"] != b"":
-                print("RTE")
-                continue
+        inOuts = [
+            ("python", "python3 ./main.py", x, y, limits, workdir, files, str(i))
+            for i, (x, y) in enumerate(zip(stdin["in"], stdin["out"]))
+        ]
 
-            a = result["stdout"].strip().split(b"\n")
-            b = str.encode(y).strip().split(b"\n")
-
-            if len(a) == len(b) and all(
-                [b" ".join(i.split()) == b" ".join(j.split()) for i, j in zip(a, b)]
-            ):
-                print("AC", result["duration"])
-            else:
-                print("WA")
+        p = Pool(len(inOuts))
+        p.map(run, inOuts)
 
