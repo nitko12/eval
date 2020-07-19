@@ -32,7 +32,7 @@ export default () => {
 
   return (
     <Card
-      title="Card title"
+      title="Login using your email"
       bordered={true}
       style={{ width: "40%", padding: 30, margin: "auto", marginTop: 40 }}
     >

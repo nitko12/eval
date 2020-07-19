@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import { useHistory } from "react-router-dom";
-import { Form, Input, Button, Checkbox, Card, Alert } from "antd";
 
 import background from "../res/background.jpg";
 
@@ -20,7 +18,8 @@ export default () => {
       }}
     >
       <h1>Effortless coding assigment grading!</h1>
-      <h3>No login required!</h3>
+      <h3>No login required, if you don't want to!</h3>
+      <h3>Just click on "Make a CA" or "Join a CA" and try it yourself :)</h3>
       <footer style={{ marginTop: "auto", fontSize: 10 }}>
         <a href="https://www.freevector.com/clouds-and-birds">FreeVector.com</a>
       </footer>

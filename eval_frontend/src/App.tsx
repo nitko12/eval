@@ -9,24 +9,34 @@ import Register from "./views/Register";
 
 import firebase from "./modules/Firebase";
 import Homepage from "./views/Homepage";
+import JoinCA from "./views/JoinCA";
+import MakeCA from "./views/MakeCA";
+import Room from "./views/Room";
 
 export default function App() {
   const [loggedIn, setLoggedIn] = useState(false);
+
+  const handleLogout = () => {};
 
   firebase.auth().onAuthStateChanged(function (user) {
     if (user) {
       setLoggedIn(true);
     }
   });
+
   return (
     <Router>
       <PageHeader
         className="site-page-header"
-        title="CAE"
+        title={<Link to="/">CAE</Link>}
         subTitle="Coding Assigment Evaluator"
         extra={[
-          <Button key="1">Make a CA</Button>,
-          <Button key="2">Join a CA</Button>,
+          <Link to="/make">
+            <Button key="1">Make a CA</Button>
+          </Link>,
+          <Link to="/join/0">
+            <Button key="2">Join a CA</Button>
+          </Link>,
           <Link
             to="/dashboard"
             style={{
@@ -55,22 +65,33 @@ export default function App() {
               Register
             </Button>
           </Link>,
-          <Button
-            key="6"
-            type="primary"
-            style={{
-              display: loggedIn ? "inline" : "none",
-            }}
-            onClick={() => {
-              setLoggedIn(false);
-              firebase.auth().signOut().catch(console.error);
-            }}
-          >
-            Log out
-          </Button>,
+          <Link to="/">
+            <Button
+              key="6"
+              type="primary"
+              style={{
+                display: loggedIn ? "inline" : "none",
+              }}
+              onClick={() => {
+                setLoggedIn(false);
+                firebase.auth().signOut().catch(console.error);
+              }}
+            >
+              Log out
+            </Button>
+          </Link>,
         ]}
       />
       <Switch>
+        <Route path="/room/:id">
+          <Room />
+        </Route>
+        <Route path="/join/:error">
+          <JoinCA />
+        </Route>
+        <Route path="/make">
+          <MakeCA />
+        </Route>
         <Route path="/login">
           <Login />
         </Route>

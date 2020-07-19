@@ -1,6 +1,7 @@
 {
   "name": "eval_frontend",
   "version": "0.1.0",
+  "homepage": ".",
   "private": true,
   "dependencies": {
     "@react-firebase/auth": "^0.2.10",
@@ -25,7 +26,8 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "firebase-deploy": "npm run build && firebase deploy"
   },
   "eslintConfig": {
     "extends": "react-app"
