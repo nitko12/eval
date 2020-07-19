@@ -23,7 +23,6 @@ export default () => {
           .signInWithEmailAndPassword(email, password)
           .then((user) => {
             history.push("/");
-            console.log(user);
           })
           .catch((err) => {
             setError(<Alert message={err.message} type="error" />);
