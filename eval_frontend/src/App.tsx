@@ -1,59 +1,73 @@
-import * as React from "react";
-import {
-  HeaderNavigation,
-  ALIGN,
-  StyledNavigationList,
-  StyledNavigationItem,
-} from "baseui/header-navigation";
-import { StyledLink } from "baseui/link";
-import { Button } from "baseui/button";
-import { useStyletron } from "baseui";
-import { Card, StyledBody, StyledAction } from "baseui/card";
-import { colors } from "baseui/tokens";
+import React from "react";
+import { BrowserRouter as Router, Switch, Route, Link } from "react-router-dom";
+import { PageHeader, Button } from "antd";
+import "antd/dist/antd.css";
+import "./index.css";
 
-export default () => {
-  const [css, theme] = useStyletron();
+import config from "./modules/Firebase";
+import Login from "./views/Login";
+import Register from "./views/Register";
+
+import firebase from "./modules/Firebase";
+
+export default function App() {
+  console.log(firebase.auth().currentUser);
   return (
-    <div style={{ backgroundColor: colors.blue50 }}>
-      <HeaderNavigation>
-        <StyledNavigationList $align={ALIGN.left}>
-          <StyledNavigationItem>Logo</StyledNavigationItem>
-        </StyledNavigationList>
-        <StyledNavigationList $align={ALIGN.center} />
-        <StyledNavigationList $align={ALIGN.right}>
-          <StyledNavigationItem>
-            <StyledLink href="#basic-link1">Quick run</StyledLink>
-          </StyledNavigationItem>
-          <StyledNavigationItem>
-            <StyledLink href="#basic-link1">Dashboard</StyledLink>
-          </StyledNavigationItem>
-          <StyledNavigationItem>
-            <StyledLink href="#basic-link2">About us</StyledLink>
-          </StyledNavigationItem>
-        </StyledNavigationList>
-        <StyledNavigationList $align={ALIGN.right}>
-          <StyledNavigationItem>
-            <Button>Create a test</Button>
-          </StyledNavigationItem>
-        </StyledNavigationList>
-      </HeaderNavigation>
-
-      <Card>
-        <StyledBody>
-          Proin ut dui sed metus pharetra hend rerit vel non mi. Nulla ornare
-          faucibus ex, non facilisis nisl. Proin ut dui sed metus pharetra hend
-          rerit vel non mi. Nulla ornare faucibus ex, non facilisis nisl.
-        </StyledBody>
-        <StyledAction>
-          <Button
-            overrides={{
-              BaseButton: { style: { width: "100%" } },
+    <Router>
+      <PageHeader
+        className="site-page-header"
+        title="CAE"
+        subTitle="Coding Essigment Evaluator"
+        extra={[
+          <Button key="3">Make a CA</Button>,
+          <Button key="2">Join a CA</Button>,
+          <Link
+            to="/login"
+            style={{
+              display: !firebase.auth().currentUser ? "inline" : "none",
             }}
           >
-            Button Label
-          </Button>
-        </StyledAction>
-      </Card>
-    </div>
+            <Button key="1" type="primary">
+              Login
+            </Button>
+          </Link>,
+          <Link
+            to="/register"
+            style={{
+              display: !firebase.auth().currentUser ? "inline" : "none",
+            }}
+          >
+            <Button key="1" type="primary">
+              Register
+            </Button>
+          </Link>,
+        ]}
+      />
+      <Switch>
+        <Route path="/login">
+          <Login />
+        </Route>
+        <Route path="/">
+          <Users />
+        </Route>
+        <Route path="/register">
+          <Register />
+        </Route>
+      </Switch>
+    </Router>
   );
-};
+}
+
+function Home() {
+  return <h2>Home</h2>;
+}
+
+function About() {
+  return <h2>About</h2>;
+}
+
+function Users() {
+  const user = firebase.auth().currentUser;
+  if (user) return <h2>{user.email}</h2>;
+  return <h2>a</h2>;
+}
